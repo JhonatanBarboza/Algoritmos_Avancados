@@ -1,10 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <map>
-#include <sstream>
-#include <iomanip>
-
+#include<bits/stdc++.h>
 using namespace std;
 
 struct Solicitacao {
