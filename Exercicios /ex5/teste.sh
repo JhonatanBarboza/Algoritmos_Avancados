@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Executa o visualizador com entrada personalizada
+python3 time_line_sh.py <<EOF
+1
+4 8
+Arthas Lenda
+Luna Aprendiz
+Mira Cavaleiro
+Theo Mestre
+1 10 0
+2 15 0
+3 5 1
+4 20 2
+5 10 3 4
+6 8 1
+7 12 6
+8 25 5 7
+EOF
