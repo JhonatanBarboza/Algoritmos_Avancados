@@ -6,7 +6,7 @@ struct Jogador {
     int inicial, final, indice;
 };
 
-// Função otimizada para contar inversões usando merge sort
+// Função para contar inversões usando merge sort
 long long mergeAndCount(vector<int>& arr, int temp[], int left, int mid, int right) {
     int i = left, j = mid, k = left;
     long long inv_count = 0;
@@ -28,6 +28,7 @@ long long mergeAndCount(vector<int>& arr, int temp[], int left, int mid, int rig
     return inv_count;
 }
 
+// Função para realizar merge sort e contar inversões
 long long mergeSortAndCount(vector<int>& arr, int temp[], int left, int right) {
     long long inv_count = 0;
     if (left < right) {
@@ -55,7 +56,7 @@ long long calcularUltrapassagens(vector<Jogador>& jogadores) {
         posicoes_finais[i] = jogadores[i].final;
     }
     
-    // Contar inversões nas posições finais
+    // Contar inversões nas posições finais (invrersões = ultrapassagens)
     vector<int> temp(n);
     return mergeSortAndCount(posicoes_finais, temp.data(), 0, n - 1);
 }
