@@ -93,13 +93,3 @@ g++ -o leokart Leo_Kart.cpp
 | **Otimizado** | **O(J log J)** | **~17 operações** |
 
 **Speedup:** ~6×10⁸ vezes mais rápido! 🚀
-
-## 📁 Estrutura do Repositório
-
-```
-leo-kart/
-├── Leo_Kart.cpp              # Solução principal em C++
-├── leo_kart_animation.html   # Simulação interativa
-├── Ex5LeoKart.pdf           # Enunciado do problema
-└── README.md                # Este arquivo
-```
