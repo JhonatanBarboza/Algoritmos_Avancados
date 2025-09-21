@@ -2,7 +2,7 @@
 
 Uma solução otimizada para contar ultrapassagens em corridas de kart, desenvolvida para a disciplina **SCC0218 - Algoritmos Avançados e Aplicações** da USP.
 
-https://github.com/user-attachments/assets/9e7a307d-ff79-469f-bd0f-e711536582e4
+![Image](https://github.com/user-attachments/assets/a9d93341-691d-4d8e-aadc-a596f151a297)
 
 ## 📋 Descrição do Problema
 
