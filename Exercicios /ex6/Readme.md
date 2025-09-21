@@ -103,19 +103,3 @@ leo-kart/
 ├── Ex5LeoKart.pdf           # Enunciado do problema
 └── README.md                # Este arquivo
 ```
-
-## 🛠️ Requisitos
-
-### Para o código C++:
-- Compilador C++ com suporte a C++11 ou superior
-- Bibliotecas padrão: `<bits/stdc++.h>` ou equivalentes
-
-### Para a simulação:
-- Navegador moderno (Chrome, Firefox, Safari, Edge)
-- JavaScript habilitado
-
-## 👨‍🎓 Contexto Acadêmico
-
-**Disciplina:** SCC0218 - Algoritmos Avançados e Aplicações  
-**Instituição:** Instituto de Ciências Matemáticas e de Computação - USP  
-**Professora:** Leo Sampaio Ferraz Ribeiro
