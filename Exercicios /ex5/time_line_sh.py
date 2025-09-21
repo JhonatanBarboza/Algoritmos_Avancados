@@ -252,76 +252,71 @@ Theo Mestre
         return timeline
     
     def plotar(self, herois, tempo_minimo, entrada=None):
-        """Gera gráfico da timeline"""
+        """Gera gráfico da timeline adaptado para casos grandes"""
         # Extrair dados da entrada
         if entrada is None:
             entrada = getattr(self, 'ultima_entrada', self.exemplo_padrao())
-        
         dependencias, herois_niveis = self.extrair_dados_entrada(entrada)
-        
-        cores = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD']
+        cores = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#74B9FF', '#F7CA18', '#B33771', '#3B3B98', '#218c5c']
         timeline = self.calcular_timeline(herois, dependencias, herois_niveis)
-        
-        fig, ax = plt.subplots(figsize=(15, 8))
-        
-        y_pos = 0
+
+        n_herois = len(herois)
+        n_tarefas = sum(len(timeline[n]) for n in timeline)
+        # Altura proporcional ao número de heróis
+        altura = max(6, n_herois * 1.1)
+        largura = 15
+        # Se tempo total for muito grande, aumentar largura
+        tempo_max = max((max((t["fim"] for t in timeline[nome]), default=0) for nome in timeline), default=0)
+        if tempo_max > 100:
+            largura = min(tempo_max / 7, 40)
+
+        fig, ax = plt.subplots(figsize=(largura, altura))
+
         nomes_herois = list(herois.keys())
-        tempo_max = 0
-        
+
+        # Fontes adaptativas
+        font_tarefa = 9 if n_herois <= 12 else 7
+        font_heroi = 11 if n_herois <= 12 else 8
+        font_tempo = 7 if n_herois <= 12 else 6
+
         for i, nome in enumerate(nomes_herois):
             cor = cores[i % len(cores)]
-            
+            y_pos = i * 1.0  # Espaçamento vertical fixo
             if not timeline[nome]:
-                ax.text(1, y_pos, "(sem tarefas)", ha='left', va='center', 
-                       style='italic', color='gray', fontsize=10)
+                ax.text(1, y_pos, "(sem tarefas)", ha='left', va='center', style='italic', color='gray', fontsize=font_tarefa)
             else:
                 for tarefa_info in timeline[nome]:
                     inicio = tarefa_info["inicio"]
                     duracao = tarefa_info["duracao"]
                     tarefa = tarefa_info["tarefa"]
-                    
                     # Barra da tarefa
                     rect = patches.Rectangle(
                         (inicio, y_pos - 0.35), duracao, 0.7,
                         facecolor=cor, edgecolor='darkblue',
-                        alpha=0.8, linewidth=1.5
+                        alpha=0.8, linewidth=1.2
                     )
                     ax.add_patch(rect)
-                    
-                    # Texto da tarefa
-                    ax.text(inicio + duracao/2, y_pos, f"T{tarefa}",
-                           ha='center', va='center', fontweight='bold',
-                           color='white', fontsize=9)
-                    
-                    # Tempos
-                    ax.text(inicio, y_pos - 0.5, f"{inicio:.1f}h",
-                           ha='center', va='top', fontsize=7, color='gray')
-                    ax.text(inicio + duracao, y_pos - 0.5, f"{inicio + duracao:.1f}h",
-                           ha='center', va='top', fontsize=7, color='gray')
-                    
-                    tempo_max = max(tempo_max, inicio + duracao)
-            
-            y_pos += 1
-        
+                    # Texto da tarefa (só se barra for larga)
+                    if duracao > 1.5 or largura > 20:
+                        ax.text(inicio + duracao/2, y_pos, f"T{tarefa}", ha='center', va='center', fontweight='bold', color='white', fontsize=font_tarefa)
+                    # Tempos (só se espaço suficiente)
+                    if duracao > 2.5 or largura > 20:
+                        ax.text(inicio, y_pos - 0.5, f"{inicio:.1f}h", ha='center', va='top', fontsize=font_tempo, color='gray')
+                        ax.text(inicio + duracao, y_pos - 0.5, f"{inicio + duracao:.1f}h", ha='center', va='top', fontsize=font_tempo, color='gray')
+
         # Linha do tempo objetivo
         if tempo_minimo > 0:
             ax.axvline(x=tempo_minimo, color='red', linestyle='--', linewidth=2, alpha=0.7)
-            ax.text(tempo_minimo + 0.5, len(herois) - 0.5, 
-                   f'Tempo Final: {tempo_minimo:.1f}h',
-                   color='red', fontweight='bold', fontsize=10,
-                   bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
-        
+            ax.text(tempo_minimo + 0.5, n_herois - 0.5, f'Tempo Final: {tempo_minimo:.1f}h', color='red', fontweight='bold', fontsize=font_heroi, bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8))
+
         # Configurações
-        ax.set_yticks(range(len(herois)))
-        ax.set_yticklabels(nomes_herois, fontsize=11, fontweight='bold')
-        ax.set_xlabel('Tempo (horas)', fontsize=12, fontweight='bold')
-        ax.set_title('Timeline de Execução - Algoritmo Guloso', 
-                    fontsize=14, fontweight='bold', pad=20)
-        
+        ax.set_yticks([i * 1.0 for i in range(n_herois)])
+        ax.set_yticklabels(nomes_herois, fontsize=font_heroi, fontweight='bold')
+        ax.set_xlabel('Tempo (horas)', fontsize=font_heroi, fontweight='bold')
+        ax.set_title('Timeline de Execução - Algoritmo Guloso', fontsize=font_heroi+3, fontweight='bold', pad=20)
         ax.grid(True, alpha=0.3)
         ax.set_xlim(-1, max(tempo_max * 1.1, tempo_minimo * 1.2, 10))
-        ax.set_ylim(-0.7, len(herois) - 0.3)
-        
+        ax.set_ylim(-0.7, n_herois * 1.0 - 0.3)
         plt.tight_layout()
         return fig
     

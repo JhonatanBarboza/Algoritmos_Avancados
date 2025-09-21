@@ -24,23 +24,6 @@ auto getMultiplicador = [](const string& nivel) -> float {
     return 1.0;
 };
 
-// Comparador para priority_queue - prioriza maior tempo de execução
-struct Comparador {
-    const vector<Missao>& missoes;
-    
-    Comparador(const vector<Missao>& m) : missoes(m) {}
-    
-    bool operator()(int a, int b) const {
-        // Priority queue mantém o maior no topo
-        // Queremos processar quests com MAIOR tempo primeiro
-        if (missoes[a].tempo != missoes[b].tempo) {
-            return missoes[a].tempo < missoes[b].tempo; // maior tempo tem prioridade
-        }
-        // Critério secundário: menor índice primeiro
-        return missoes[a].indice > missoes[b].indice;
-    }
-};
-
 int main(){
     int x, n, m;
 
@@ -71,19 +54,8 @@ int main(){
             }
         }
 
-        /*
-        // debug - print missões lidas
-        for (const auto& missao : missoes) {
-            cout << "Missão "<< missao.indice << ": tempo " << missao.tempo << ", dependências {";
-            for (int dep : missao.dependencias) {
-                cout << dep + 1 << " "; // +1 para índice 1-based
-            }
-            cout << "}" << endl;
-        }
-        */
-
-        // Topological Sort com critério de desempate por maior tempo
-        vector<int> ordem;
+        // Topological Sort para garantir que dependências sejam respeitadas
+        vector<int> ordem_topologica;
         vector<int> grau_entrada(m, 0);
         vector<vector<int>> grafo(m);
         
@@ -95,76 +67,78 @@ int main(){
             }
         }
         
-        // Priority queue que prioriza maior tempo de execução
-        priority_queue<int, vector<int>, greater<int>> pq;
-        //priority_queue<int, vector<int>, Comparador> pq{Comparador(missoes)};
+        // Ordenação topológica (FIFO para manter ordem original quando possível)
+        queue<int> fila;
 
         // Adicionar todas as missões sem dependências
         for (int j = 0; j < m; j++){
             if (grau_entrada[j] == 0){ 
-                pq.push(j);
+                fila.push(j);
             }
         }        
 
         // Processar ordenação topológica
-        while (!pq.empty()){
-            int u = pq.top();
-            pq.pop();
-            ordem.push_back(u);
+        while (!fila.empty()){
+            int u = fila.front();
+            fila.pop();
+            ordem_topologica.push_back(u);
             
             // Para cada missão que pode ser desbloqueada
             for (int vizinho : grafo[u]){
                 grau_entrada[vizinho]--;
                 if (grau_entrada[vizinho] == 0){
-                    pq.push(vizinho);
+                    fila.push(vizinho);
                 }
             }
         }   
-        /*
-        // Debug - print ordem topológica
-        cout << "Ordem topológica das missões: ";
-        for (int idx : ordem){
-            cout << idx + 1 << " "; // +1 para índice 1-based
-        }
-        cout << endl;
-        */
-        // Algoritmo guloso para alocação
+
+        // Algoritmo guloso para alocação otimizada
         vector<vector<int>> atribuicoes(n); 
         vector<float> tempo_livre_heroi(n, 0.0); 
         vector<float> tempo_conclusao_quest(m, 0.0); 
         
         // Processar quests na ordem topológica
-        for (int quest_idx : ordem) {
-            // Calcular quando esta quest pode começar
-            float tempo_inicio = 0.0;
+        for (int quest_idx : ordem_topologica) {
+            // Calcular quando esta quest pode começar (após todas suas dependências)
+            float tempo_inicio_minimo = 0.0;
             for (int dep : missoes[quest_idx].dependencias) {
-                tempo_inicio = max(tempo_inicio, tempo_conclusao_quest[dep]);
+                tempo_inicio_minimo = max(tempo_inicio_minimo, tempo_conclusao_quest[dep]);
             }
 
-            // Encontrar o melhor herói
+            // ESTRATÉGIA GULOSA: Encontrar o herói que MINIMIZA o tempo de conclusão desta quest
             int melhor_heroi = -1;
             float melhor_tempo_conclusao = INFINITY;
             
             for (int h = 0; h < n; h++) {
+                // Calcular tempo de execução considerando produtividade do herói
                 float multiplicador = getMultiplicador(herois[h].nivel);
                 float tempo_execucao = missoes[quest_idx].tempo / multiplicador;
                 
-                float inicio_possivel = max(tempo_inicio, tempo_livre_heroi[h]);
+                // Momento mais cedo que este herói pode começar esta quest
+                float inicio_possivel = max(tempo_inicio_minimo, tempo_livre_heroi[h]);
+                
+                // Tempo total de conclusão se atribuirmos a este herói
                 float conclusao_possivel = inicio_possivel + tempo_execucao; 
                 
+                // Critério guloso: escolher herói que conclui a quest mais cedo
+                // Em caso de empate, escolher o primeiro herói da lista (critério de desempate)
                 if (conclusao_possivel < melhor_tempo_conclusao) {
                     melhor_tempo_conclusao = conclusao_possivel;
                     melhor_heroi = h;
                 }
             }
 
-            // Atribuir quest ao melhor herói
-            atribuicoes[melhor_heroi].push_back(quest_idx + 1);
+            // Atribuir quest ao melhor herói encontrado
+            atribuicoes[melhor_heroi].push_back(quest_idx + 1); // +1 para índice 1-based na saída
+            
+            // Atualizar quando este herói ficará livre novamente
             tempo_livre_heroi[melhor_heroi] = melhor_tempo_conclusao;
+            
+            // Registrar quando esta quest será concluída
             tempo_conclusao_quest[quest_idx] = melhor_tempo_conclusao;
         }
         
-        // Saída
+        // Saída no formato especificado
         for (int h = 0; h < n; h++) {
             cout << herois[h].nome << " = {";
             for (size_t j = 0; j < atribuicoes[h].size(); j++) {
@@ -174,7 +148,7 @@ int main(){
             cout << "}" << endl;
         }
         
-        // Tempo mínimo total
+        // Tempo mínimo total = tempo da quest que termina por último
         float tempo_total = 0.0;
         for (int j = 0; j < m; j++) {
             tempo_total = max(tempo_total, tempo_conclusao_quest[j]);
