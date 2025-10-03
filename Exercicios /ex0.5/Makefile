@@ -1,21 +1,23 @@
 # Compilador
 CXX = g++
-SRC = Ganhos.cpp
-OUT = Ganhos
+
+# Arquivo fonte
+SRC = ex2.cpp
+
+# Executável
+OUT = ex2
+
+# Opções de compilação
 CXXFLAGS = -Wall -g
 
-# Compilar tudo
-all: $(OUT)
+# Compilar (regra padrão)
+make: $(OUT)
 
 $(OUT): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(OUT)
 
-# Rodar o teste
-teste: all
-	./teste.sh
-
-# Executar o binário
-run: all
+# Executar
+run: $(OUT)
 	./$(OUT)
 
 # Limpar arquivos gerados

@@ -1,112 +1,162 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-struct Solicitacao {
-    int cliente;
-    int inicio;    // tempo em minutos
-    int fim;       // tempo em minutos
-    int modelo;
-    
-    Solicitacao(int c, int i, int f, int m) : cliente(c), inicio(i), fim(f), modelo(m) {}
+struct Heroi{
+    string nome;
+    string nivel;
+    bool disponivel = true;
 };
 
-// Converte horário HH:MM para minutos
-int horarioParaMinutos(const string& horario) {
-    int horas = stoi(horario.substr(0, 2));
-    int minutos = stoi(horario.substr(3, 2));
-    return horas * 60 + minutos;
-}
+struct Missao{
+    int indice;
+    int tempo;
+    vector<int> dependencias;
+    bool realizada = false;
+};
 
-// Comparador para ordenar por horário de término
-bool compararPorFim(const Solicitacao& a, const Solicitacao& b) {
-    // Critério principal: ordenar pelo horário de término
-    if (a.fim != b.fim) {
-        return a.fim < b.fim;
-    }
-    // Primeiro critério de desempate: ordenar pelo horário de início
-    if (a.inicio != b.inicio) {
-        return a.inicio < b.inicio;
-    }
-    // Segundo critério de desempate: ordenar pelo ID do cliente
-    return a.cliente < b.cliente;
-}
+// Função para obter multiplicador de produtividade
+auto getMultiplicador = [](const string& nivel) -> float {
+    if (nivel == "Aprendiz") return 0.75;
+    if (nivel == "Aventureiro") return 1.0;
+    if (nivel == "Cavaleiro") return 1.2;
+    if (nivel == "Mestre") return 1.5;
+    if (nivel == "Lenda") return 2.0;
+    return 1.0;
+};
 
-// Algoritmo guloso para máximo de atividades sem sobreposição
-vector<int> algoritmoGuloso(vector<Solicitacao>& solicitacoes) {
-    if (solicitacoes.empty()) return {};
-    
-    // Ordena por horário de término
-    sort(solicitacoes.begin(), solicitacoes.end(), compararPorFim);
-  
+int main(){
+    int x, n, m;
 
-    vector<int> selecionados;
-    selecionados.push_back(solicitacoes[0].cliente);
-    int ultimoFim = solicitacoes[0].fim;
-    
-    for (size_t i = 1; i < solicitacoes.size(); i++) {
-        // Se não há sobreposição (início >= fim anterior)
-        if (solicitacoes[i].inicio >= ultimoFim) {
-            selecionados.push_back(solicitacoes[i].cliente);
-            ultimoFim = solicitacoes[i].fim;
-        }
-    }
+    // Numero de casos teste 
+    cin >> x;
+    for (int i = 0; i < x; i++){
+        cin >> n >> m;
 
-    return selecionados;
-}
-
-int main() {
-    int X;
-    cin >> X;
-    
-    while (X--) {
-        int N, M;
-        cin >> N >> M;
-        
-        // Mapa para agrupar solicitações por modelo
-        map<int, vector<Solicitacao>> solicitacoesPorModelo;
-        
-        for (int i = 0; i < M; i++) {
-            int cliente, modelo;
-            string inicio, fim;
-            cin >> cliente >> inicio >> fim >> modelo;
-            
-            int inicioMin = horarioParaMinutos(inicio);
-            int fimMin = horarioParaMinutos(fim);
-            
-            solicitacoesPorModelo[modelo].emplace_back(cliente, inicioMin, fimMin, modelo);
+        // ler nome e nivel dos herois 
+        vector<Heroi> herois(n);
+        for (int j = 0; j < n; j++){
+            cin >> herois[j].nome >> herois[j].nivel;
         }
         
-        vector<string> resultados;
-        
-        // Para cada modelo de carro (1 a N)
-        for (int modelo = 1; modelo <= N; modelo++) {
-            if (solicitacoesPorModelo.find(modelo) != solicitacoesPorModelo.end()) {
-                vector<Solicitacao> solicitacoes = solicitacoesPorModelo[modelo];
-                vector<int> clientesSelecionados = algoritmoGuloso(solicitacoes);
-                
-                // Monta string do resultado
-                stringstream ss;
-                ss << modelo << ": " << clientesSelecionados.size() << " = ";
-                
-                for (size_t i = 0; i < clientesSelecionados.size(); i++) {
-                    if (i > 0) ss << ", ";
-                    ss << clientesSelecionados[i];
+        // ler o indice, tempo e dependencias de cada missao
+        vector<Missao> missoes(m);
+        for (int j = 0; j < m; j++){
+            cin >> missoes[j].indice >> missoes[j].tempo;
+            // ler dependencias que tem tamanho indefinido
+            string linha;
+            getline(cin, linha);
+            stringstream ss(linha);
+            int dep;
+            while (ss >> dep){
+                if (dep != 0) { // 0 significa sem dependências
+                    missoes[j].dependencias.push_back(dep - 1); // Converter para índice 0-based
                 }
-                
-                resultados.push_back(ss.str());
-            } else {
-                // Modelo sem solicitações
-                resultados.push_back(to_string(modelo) + ": 0");
+            }
+        }
+
+        // Topological Sort para garantir que dependências sejam respeitadas
+        vector<int> ordem_topologica;
+        vector<int> grau_entrada(m, 0);
+        vector<vector<int>> grafo(m);
+        
+        // Construir o grafo e calcular grau de entrada
+        for (int j = 0; j < m; j++){
+            for (int dep : missoes[j].dependencias){
+                grafo[dep].push_back(j);
+                grau_entrada[j]++;
             }
         }
         
-        // Imprime resultado do caso de teste
-        for (size_t i = 0; i < resultados.size(); i++) {
-            if (i > 0) cout << " | ";
-            cout << resultados[i];
+        // Ordenação topológica (FIFO para manter ordem original quando possível)
+        queue<int> fila;
+
+        // Adicionar todas as missões sem dependências
+        for (int j = 0; j < m; j++){
+            if (grau_entrada[j] == 0){ 
+                fila.push(j);
+            }
+        }        
+
+        // Processar ordenação topológica
+        while (!fila.empty()){
+            int u = fila.front();
+            fila.pop();
+            ordem_topologica.push_back(u);
+            
+            // Para cada missão que pode ser desbloqueada
+            for (int vizinho : grafo[u]){
+                grau_entrada[vizinho]--;
+                if (grau_entrada[vizinho] == 0){
+                    fila.push(vizinho);
+                }
+            }
+        }   
+
+        // Algoritmo guloso para alocação otimizada
+        vector<vector<int>> atribuicoes(n); 
+        vector<float> tempo_livre_heroi(n, 0.0); 
+        vector<float> tempo_conclusao_quest(m, 0.0); 
+        
+        // Processar quests na ordem topológica
+        for (int quest_idx : ordem_topologica) {
+            // Calcular quando esta quest pode começar (após todas suas dependências)
+            float tempo_inicio_minimo = 0.0;
+            for (int dep : missoes[quest_idx].dependencias) {
+                tempo_inicio_minimo = max(tempo_inicio_minimo, tempo_conclusao_quest[dep]);
+            }
+
+            // ESTRATÉGIA GULOSA: Encontrar o herói que MINIMIZA o tempo de conclusão desta quest
+            int melhor_heroi = -1;
+            float melhor_tempo_conclusao = INFINITY;
+            
+            for (int h = 0; h < n; h++) {
+                // Calcular tempo de execução considerando produtividade do herói
+                float multiplicador = getMultiplicador(herois[h].nivel);
+                float tempo_execucao = missoes[quest_idx].tempo / multiplicador;
+                
+                // Momento mais cedo que este herói pode começar esta quest
+                float inicio_possivel = max(tempo_inicio_minimo, tempo_livre_heroi[h]);
+                
+                // Tempo total de conclusão se atribuirmos a este herói
+                float conclusao_possivel = inicio_possivel + tempo_execucao; 
+                
+                // Critério guloso: escolher herói que conclui a quest mais cedo
+                // Em caso de empate, escolher o primeiro herói da lista (critério de desempate)
+                if (conclusao_possivel < melhor_tempo_conclusao) {
+                    melhor_tempo_conclusao = conclusao_possivel;
+                    melhor_heroi = h;
+                }
+            }
+
+            // Atribuir quest ao melhor herói encontrado
+            atribuicoes[melhor_heroi].push_back(quest_idx + 1); // +1 para índice 1-based na saída
+            
+            // Atualizar quando este herói ficará livre novamente
+            tempo_livre_heroi[melhor_heroi] = melhor_tempo_conclusao;
+            
+            // Registrar quando esta quest será concluída
+            tempo_conclusao_quest[quest_idx] = melhor_tempo_conclusao;
         }
-        cout << endl;
+        
+        // Saída no formato especificado
+        for (int h = 0; h < n; h++) {
+            cout << herois[h].nome << " = {";
+            for (size_t j = 0; j < atribuicoes[h].size(); j++) {
+                if (j > 0) cout << ",";
+                cout << atribuicoes[h][j];
+            }
+            cout << "}" << endl;
+        }
+        
+        // Tempo mínimo total = tempo da quest que termina por último
+        float tempo_total = 0.0;
+        for (int j = 0; j < m; j++) {
+            tempo_total = max(tempo_total, tempo_conclusao_quest[j]);
+        }
+        
+        cout << fixed << setprecision(2) << "Tempo mínimo: " << tempo_total << endl;
+        if (i < x - 1) cout << endl;
     }
     
-    return 0;
+    return 0; 
 }

@@ -1,23 +1,28 @@
-# Compilador
 CXX = g++
-SRC = Leo_Kart.cpp
-OUT = Leo_Kart
-CXXFLAGS = -Wall -g
+CXXFLAGS = -std=c++17 -O2 -Wall -Wextra
+TARGET = Colar
+SOURCE = Colar.cpp
 
-# Compilar tudo
-all: $(OUT)
+$(TARGET): $(SOURCE)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SOURCE)
 
-$(OUT): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(OUT)
+test: $(TARGET)
+	@echo "Testando todos os casos..."
+	@for i in 1 2 3 4 5 6 7 8; do \
+		echo "=== Teste $$i ==="; \
+		./$(TARGET) < "Casos de Teste - Exercicio 06_ O Colar Ancestral/$$i.in" > temp_out; \
+		if diff temp_out "Casos de Teste - Exercicio 06_ O Colar Ancestral/$$i.out" > /dev/null; then \
+			echo "✓ Passou"; \
+		else \
+			echo "✗ Falhou"; \
+		fi; \
+	done
+	@rm -f temp_out
 
-# Rodar o teste
-teste: all
-	./teste.sh
+run: $(TARGET)
+	./$(TARGET)
 
-# Executar o binário
-run: all
-	./$(OUT)
-
-# Limpar arquivos gerados
 clean:
-	rm -f $(OUT)
+	rm -f $(TARGET) temp_out
+
+.PHONY: test clean run

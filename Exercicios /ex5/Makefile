@@ -1,7 +1,7 @@
 # Compilador
 CXX = g++
-SRC = Guloso.cpp
-OUT = Guloso
+SRC = Leo_Kart.cpp
+OUT = Leo_Kart
 CXXFLAGS = -Wall -g
 
 # Compilar tudo
