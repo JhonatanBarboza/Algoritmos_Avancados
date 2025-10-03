@@ -1,0 +1,55 @@
+Rift-N1, Wall-A3, 10.02
+Rift-N1, Wall-A4, 10.10
+Wall-A1, Wall-A2, 15.00
+Wall-A2, Wall-A3, 20.01
+Wall-A4, Wall-A5, 20.02
+Wall-A5, Wall-A6, 20.03
+Wall-A6, Wall-A7, 20.04
+Wall-A7, Wall-A8, 20.06
+Wall-A8, Wall-A9, 20.07
+Rift-N2, Wall-A9, 40.10
+AxisMundi, Rift-N5, 50.00
+Ponto de Ressonância: AxisMundi, Outlier-C, 0.14
+
+Core-A, Singularity-1, 0.14
+Core-A, Singularity-2, 0.14
+Core-A, Singularity-3, 0.14
+Core-Z, Singularity-1, 0.57
+Core-B, Core-J, 0.71
+Core-B, Core-Z, 0.71
+Core-C, Core-K, 0.71
+Core-D, Core-L, 0.71
+Core-E, Core-M, 0.71
+Core-C, Singularity-2, 1.27
+Core-D, Singularity-3, 1.27
+Core-A, Core-E, 1.41
+Core-B, Core-F, 1.41
+Core-B, Core-H, 1.41
+Core-C, Core-G, 1.41
+Core-D, Core-I, 1.41
+Core-N, Core-V, 1.41
+Core-O, Core-W, 1.41
+Core-P, Core-X, 1.41
+Core-Q, Core-Y, 1.41
+Core-J, Core-N, 2.12
+Core-K, Core-O, 2.12
+Core-L, Core-P, 2.12
+Core-M, Core-Q, 2.12
+Core-F, Core-R, 3.00
+Core-G, Core-S, 3.00
+Core-H, Core-T, 3.00
+Core-I, Core-U, 3.00
+Core-V, ArmA-01, 21.84
+Ponto de Ressonância: Core-A, Singularity-1, 0.14
+
+NebulaA-01, NebulaA-10, 0.71
+NebulaA-02, NebulaA-10, 0.71
+NebulaA-03, NebulaA-10, 0.71
+NebulaA-04, NebulaA-10, 0.71
+NebulaA-02, NebulaA-05, 1.00
+NebulaA-03, NebulaA-06, 1.00
+NebulaA-04, NebulaA-07, 1.00
+NebulaA-04, NebulaA-08, 1.00
+NebulaA-07, NebulaA-09, 1.00
+Ponto de Ressonância: NebulaA-01, NebulaA-30, 0.10
+
