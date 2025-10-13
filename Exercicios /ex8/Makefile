@@ -1,7 +1,7 @@
 # Compilador
 CXX = g++
-SRC = ex7_DP.cpp
-OUT = ex7
+SRC = ex8.cpp
+OUT = ex8
 CXXFLAGS = -Wall -g
 
 # Compilar tudo
@@ -12,7 +12,7 @@ $(OUT): $(SRC)
 
 # Rodar o caso teste 1
 test1: all
-	./$(OUT) < "Casos de Teste - Ex7/2.in"
+	./$(OUT) < "Casos de Teste - Ex8/0.in"
 
 
 # Executar o binário
